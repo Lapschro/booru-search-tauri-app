@@ -5,20 +5,17 @@ export const searchSettings = writable({
     site: "yandere",
 });
 
-
 export const searchProvider = derived(searchSettings, ($searchSettings) => {
     switch ($searchSettings.site) {
         case "yandere":
             return new Yandere();
-        case "konachan":
-            return new Konachan();
     }
 });
 
-export const providers = ['yandere', 'konachan']
+export const providers = ["yandere"];
 
 export default {
     searchSettings,
     searchProvider,
-    providers
-}
+    providers,
+};

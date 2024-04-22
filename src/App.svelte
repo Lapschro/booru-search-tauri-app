@@ -3,6 +3,8 @@
   import Header from "./lib/Header.svelte";
   import SearchContent from "./lib/SearchContent.svelte";
   import { searchSettings, searchProvider } from "./lib/stores/search";
+  import folder from "./lib/stores/folder";
+
   let route = "home";
 
   let loading = false;
@@ -22,6 +24,13 @@
     }
   };
 
+  async function saveFile() {
+    await invoke("download", {
+      url: zoom.file_url,
+      tags: zoom.tags,
+      path: `${$folder}\\${$searchSettings.site} - ${zoom.id} ${zoom.tags}.${zoom.file_ext}`,
+    });
+  }
   async function Search({ detail }) {
     if (!loading) {
       loading = true;
@@ -88,15 +97,26 @@
       />
     {/if}
     {#if zoom != null}
-      <dialog open class="fixed top-0 left-0 w-full h-full grid grid-cols-2">
-        <img
-          src={zoom.preview_url}
-          alt={zoom.tags}
-          class="w-full h-full object-contain"
-          on:click={() => {
-            zoom = null;
-          }}
-        />
+      <dialog open class="fixed top-0 left-0 w-full h-full ">
+      <div class="p-10 flex flex-col w-full h-full overflow-scroll">
+        <div class="p-2 flex flex-row  gap-2">
+          <img
+            src={zoom.sample_url}
+            alt={zoom.tags}
+            class="flex-[2] max-h-[100vh] object-contain"
+            on:click={() => {
+              zoom = null;
+            }}
+            
+            on:contextmenu|preventDefault|stopPropagation={saveFile}
+          />
+          <div class="flex-[1] flex flex-row gap-2 flex-wrap">
+            {#each zoom.tags as tag}
+              {tag}
+            {/each}
+          </div>
+        </div>
+      </div>
       </dialog>
     {/if}
   </div>

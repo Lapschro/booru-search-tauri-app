@@ -86,6 +86,7 @@
     Select folder
   </button>
   <label for="folder">{$folder}</label>
+  <span>Right click for downloading file</span>
 </div>
 
 <style>
