@@ -25,6 +25,11 @@ async fn download(url: String, tags: String, path: String) -> () {
     download_and_save_file(url.as_str(), tags.as_str(), path.as_str()).await.expect("error while downloading file");
 }
 
+#[tauri::command]
+async fn fetch(url : String) -> String {
+    reqwest::get(url).await.expect("something went wrong").text().await.expect("Something went wrong")
+}
+
 async fn download_and_save_file(url: &str, tags: &str, path: &str) -> Result<()> {
     println!("{url} \n {tags} \n {path}");
     let response = reqwest::get(url).await?;
@@ -110,7 +115,7 @@ async fn main() {
 
 
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![greet, download, get_configurations, save_configurations, save_post, get_posts])
+        .invoke_handler(tauri::generate_handler![greet, download, get_configurations, save_configurations, save_post, get_posts, fetch])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
