@@ -1,6 +1,6 @@
-# Tauri + Svelte + Typescript
+# Booru search
 
-This template should help get you started developing with Tauri, Svelte and TypeScript in Vite.
+This is an app to search boorus and download images to a choosen folder
 
 ## Recommended IDE Setup
 
