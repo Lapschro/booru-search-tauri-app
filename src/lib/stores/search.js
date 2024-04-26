@@ -1,5 +1,5 @@
 import { derived, writable } from "svelte/store";
-import { Gelbooru, Yandere } from "../providers/booru_provider";
+import { Gelbooru, Konachan, Yandere } from "../providers/booru_provider";
 
 export const searchSettings = writable({
     site: "yandere",
@@ -11,10 +11,12 @@ export const searchProvider = derived(searchSettings, ($searchSettings) => {
             return new Yandere();
         case "gelbooru":
             return new Gelbooru();
+        case "konachan":
+            return new Konachan();
     }
 });
 
-export const providers = ["yandere", "gelbooru"];
+export const providers = ["yandere", "gelbooru", "konachan"];
 
 export default {
     searchSettings,

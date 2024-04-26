@@ -8,8 +8,6 @@
 
   const { searchSettings } = searchStore;
 
-  console.log(searchStore);
-
   const dispatch = createEventDispatcher();
 
   function searchTags() {
@@ -37,7 +35,7 @@
   }
 </script>
 
-<div class="header">
+<div class="header space-x-2">
   <label for="tags" class="mr-1">Tags: </label>
   <input
     type="text"

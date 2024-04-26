@@ -30,3 +30,19 @@ export class Gelbooru implements BooruProvider {
         return json;
     }
 }
+
+export class Konachan implements BooruProvider {
+    async fetchPage(tags: string, page: number, size: number): Promise<Post[]> {
+        const res = (await invoke("fetch", {
+            url: `https://konachan.com/post.json?tags=${tags}&page=${page}&limit=${size}`,
+        })) as string;
+
+        const json = JSON.parse(res) as Post[];
+        return json.map(x => {
+            return {
+                ...x,
+                sample_url: x['preview_url'],
+            }
+        });
+    }
+}

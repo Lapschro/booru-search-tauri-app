@@ -5,30 +5,48 @@
   export let post: Post;
   import folder from "./stores/folder";
   import { createEventDispatcher } from "svelte";
+  import { searchSettings } from "./stores/search";
 
   const dispatch = createEventDispatcher();
 
   async function saveFile() {
+    const file_ext = post.file_url.split(".").reverse().shift();
+
     await invoke("download", {
       url: post.file_url,
       tags: post.tags,
-      path: `${$folder}\\yande.re - ${post.id} ${post.tags}.${post.file_ext}`,
+      path: `${$folder}\\${$searchSettings.site} - ${post.id}.${post.file_ext ?? file_ext}`,
     });
   }
-  
-  const save_post = ()=> {
-    invoke("save_post", {content : JSON.stringify(post)})
+
+  async function Kappa() {
+    const data = await fetch(post.preview_url, {
+      mode: "no-cors",
+    });
+    const blob = await data.blob();
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(blob);
+      reader.onloadend = () => {
+        const base64data = reader.result;
+        resolve(base64data);
+      };
+      reader.onerror = reject;
+    });
   }
 </script>
 
-<div class="flex flex-row justify-center border border-black h-full m-2 " on:click={()=>{
-  dispatch("post-click", post);
-}}>
+<div
+  class="flex flex-row justify-center border border-black h-full m-2 rounded-md cursor-pointer"
+  on:click={() => {
+    dispatch("post-click", post);
+    Kappa();
+  }}
+>
   <img
     class="image self-center"
     src={post.preview_url}
     alt={post.tags}
-    
     on:contextmenu|preventDefault|stopPropagation={saveFile}
   />
 </div>
@@ -39,4 +57,3 @@
     max-height: 100%;
   }
 </style>
-

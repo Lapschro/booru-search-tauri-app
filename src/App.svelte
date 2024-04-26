@@ -14,6 +14,7 @@
   let search: any;
 
   let zoom: any = null;
+  let base64data = null;
 
   window.onscroll = function (ev) {
     if (
@@ -25,10 +26,11 @@
   };
 
   async function saveFile() {
+    const file_ext = zoom.file_url.split(".").reverse().shift();
     await invoke("download", {
       url: zoom.file_url,
       tags: zoom.tags,
-      path: `${$folder}\\${$searchSettings.site} - ${zoom.id} ${zoom.tags}.${zoom.file_ext}`,
+      path: `${$folder}\\${$searchSettings.site} - ${zoom.id}.${zoom.file_ext ?? file_ext}`,
     });
   }
   async function Search({ detail }) {
@@ -97,26 +99,26 @@
       />
     {/if}
     {#if zoom != null}
-      <dialog open class="fixed top-0 left-0 w-full h-full ">
-      <div class="p-10 flex flex-col w-full h-full overflow-scroll">
-        <div class="p-2 flex flex-row  gap-2">
-          <img
-            src={zoom.sample_url}
-            alt={zoom.tags}
-            class="flex-[2] max-h-[100vh] object-contain"
-            on:click={() => {
-              zoom = null;
-            }}
-            
-            on:contextmenu|preventDefault|stopPropagation={saveFile}
-          />
-          <div class="flex-[1] flex flex-row gap-2 flex-wrap">
-            {#each zoom.tags as tag}
-              {tag}
-            {/each}
+      <dialog open class="fixed top-0 left-0 w-full h-full">
+        <div class="p-10 flex flex-col w-full h-full overflow-scroll">
+          <div class="p-2 flex flex-row gap-2">
+            <img
+              src={zoom.sample_url}
+              alt={zoom.tags}
+              class="flex-[2] max-h-[100vh] object-contain"
+              on:click={() => {
+                zoom = null;
+              }}
+              on:contextmenu|preventDefault|stopPropagation={saveFile}
+            />
+            <div class="bg-black h-full w-[1px]"></div>
+            <div class="flex-[1] flex flex-row gap-2 flex-wrap">
+              {#each zoom.tags as tag}
+                {tag}
+              {/each}
+            </div>
           </div>
         </div>
-      </div>
       </dialog>
     {/if}
   </div>

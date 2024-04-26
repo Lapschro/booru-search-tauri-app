@@ -1,16 +1,19 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::{fs::File, io::{copy, Cursor, Write, Read}};
+use std::{
+    fs::File,
+    io::{copy, Cursor, Read, Write},
+};
 
-use anyhow::{Result};
+use anyhow::Result;
 
-use rusqlite::{Connection};
+use rusqlite::Connection;
 
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 struct Post {
     id: i32,
-    content : String
+    content: String,
 }
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
@@ -22,12 +25,19 @@ fn greet(name: &str) -> String {
 #[tauri::command]
 async fn download(url: String, tags: String, path: String) -> () {
     println!("Writing {url} to {path}");
-    download_and_save_file(url.as_str(), tags.as_str(), path.as_str()).await.expect("error while downloading file");
+    download_and_save_file(url.as_str(), tags.as_str(), path.as_str())
+        .await
+        .expect("error while downloading file");
 }
 
 #[tauri::command]
-async fn fetch(url : String) -> String {
-    reqwest::get(url).await.expect("something went wrong").text().await.expect("Something went wrong")
+async fn fetch(url: String) -> String {
+    reqwest::get(url)
+        .await
+        .expect("something went wrong")
+        .text()
+        .await
+        .expect("Something went wrong")
 }
 
 async fn download_and_save_file(url: &str, tags: &str, path: &str) -> Result<()> {
@@ -46,18 +56,20 @@ async fn download_and_save_file(url: &str, tags: &str, path: &str) -> Result<()>
 fn get_configurations() -> String {
     let mut file = File::open("configurations.json").expect("Unable to open file");
     let mut contents = String::new();
-    file.read_to_string(&mut contents).expect("Unable to read file");
+    file.read_to_string(&mut contents)
+        .expect("Unable to read file");
     contents
 }
 
 #[tauri::command]
 fn save_configurations(configurations: String) -> () {
     let mut file = File::create("configurations.json").expect("Unable to create file");
-    file.write_all(configurations.as_bytes()).expect("Unable to write file");
+    file.write_all(configurations.as_bytes())
+        .expect("Unable to write file");
 }
 
 #[tauri::command]
-fn save_post(content : String) -> bool {
+fn save_post(content: String) -> bool {
     let conn = Connection::open("test.db").expect("Unable to open database");
 
     println!("Saving post: {}", content);
@@ -81,15 +93,17 @@ fn save_post(content : String) -> bool {
 fn get_posts() -> String {
     let conn = Connection::open("test.db").expect("Unable to open database");
 
-    let mut statement = conn.prepare("SELECT id, content FROM posts").expect("Unable to prepare statement");
-    let posts_iter = statement.query_map([], |row|{
-        Ok(
-            Post {
-            id: row.get(0)?,
-            content: row.get(1)?
-        }
-    )
-    }).expect("Unable to query map");
+    let mut statement = conn
+        .prepare("SELECT id, content FROM posts")
+        .expect("Unable to prepare statement");
+    let posts_iter = statement
+        .query_map([], |row| {
+            Ok(Post {
+                id: row.get(0)?,
+                content: row.get(1)?,
+            })
+        })
+        .expect("Unable to query map");
 
     let mut res = Vec::new();
     for post in posts_iter {
@@ -99,23 +113,29 @@ fn get_posts() -> String {
     serde_json::to_string(res.as_slice()).expect("Unable to serialize")
 }
 
-
-
 #[tokio::main]
 async fn main() {
     let conn = Connection::open("test.db").expect("Unable to open database");
-    
+
     conn.execute(
         "CREATE TABLE IF NOT EXISTS posts (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             content TEXT NOT NULL UNIQUE
         )",
         [],
-    ).expect("Unable to create table");
-
+    )
+    .expect("Unable to create table");
 
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![greet, download, get_configurations, save_configurations, save_post, get_posts, fetch])
+        .invoke_handler(tauri::generate_handler![
+            greet,
+            download,
+            get_configurations,
+            save_configurations,
+            save_post,
+            get_posts,
+            fetch
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
