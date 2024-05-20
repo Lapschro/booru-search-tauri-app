@@ -33,6 +33,10 @@
   function changeProvider(provider) {
     searchSettings.set({ ...$searchSettings, site: provider.target.value });
   }
+
+  function changeSaveTags(){
+    searchSettings.set({...$searchSettings, save_tags : !$searchSettings.save_tags})
+  }
 </script>
 
 <div class="header space-x-2">
@@ -84,6 +88,8 @@
     Select folder
   </button>
   <label for="folder">{$folder}</label>
+  <input type="checkbox" name="save_tags" id="save_tags" value={$searchSettings.save_tags} on:click={changeSaveTags}>
+  <label for="save_tags">Save tags as txt</label>
   <span>Right click for downloading file</span>
 </div>
 

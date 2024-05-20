@@ -3,12 +3,11 @@
 
 use std::{
     fs::File,
-    io::{copy, Cursor, Read, Write},
+    io::{copy, BufWriter, Cursor, Read, Write}, path::PathBuf,
 };
 
 use anyhow::Result;
 
-use rusqlite::Connection;
 
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 struct Post {
@@ -23,9 +22,16 @@ fn greet(name: &str) -> String {
 }
 
 #[tauri::command]
-async fn download(url: String, tags: String, path: String) -> () {
-    println!("Writing {url} to {path}");
-    download_and_save_file(url.as_str(), tags.as_str(), path.as_str())
+async fn download(url: String, tags: String, path: String, saveTags : String) -> () {
+    println!("Writing {url} to {path} with {saveTags}");
+    let save_tags = saveTags.parse::<bool>().expect("Wrong save_tags");
+    if save_tags {
+        println!("Saving tags");
+    }else{
+        println!("Not saving tags");
+    }
+
+    download_and_save_file(url.as_str(), tags.as_str(), path.as_str(), save_tags)
         .await
         .expect("error while downloading file");
 }
@@ -40,7 +46,7 @@ async fn fetch(url: String) -> String {
         .expect("Something went wrong")
 }
 
-async fn download_and_save_file(url: &str, tags: &str, path: &str) -> Result<()> {
+async fn download_and_save_file(url: &str, tags: &str, path: &str, save_tags : bool) -> Result<()> {
     println!("{url} \n {tags} \n {path}");
     let response = reqwest::get(url).await?;
 
@@ -48,6 +54,16 @@ async fn download_and_save_file(url: &str, tags: &str, path: &str) -> Result<()>
 
     let mut content = Cursor::new(response.bytes().await?);
     copy(&mut content, &mut file)?;
+
+    if save_tags{
+        let mut path_buf = PathBuf::from(path);
+        path_buf.set_extension("txt");
+        let file = File::create(path_buf)?;
+        let mut writer = BufWriter::new(file);
+
+        let _ = writer.write_all(tags.as_bytes());
+        writer.flush()?;
+    }
 
     Ok(())
 }

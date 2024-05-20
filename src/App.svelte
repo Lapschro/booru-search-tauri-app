@@ -27,10 +27,13 @@
 
   async function saveFile() {
     const file_ext = zoom.file_url.split(".").reverse().shift();
+    console.log($searchSettings.save_tags);
+    
     await invoke("download", {
       url: zoom.file_url,
-      tags: zoom.tags,
+      tags: zoom.tags.split(" ").join(", "),
       path: `${$folder}\\${$searchSettings.site} - ${zoom.id}.${zoom.file_ext ?? file_ext}`,
+      saveTags : `${$searchSettings.save_tags}`
     });
   }
   async function Search({ detail }) {

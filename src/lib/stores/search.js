@@ -3,6 +3,7 @@ import { Gelbooru, Konachan, Yandere } from "../providers/booru_provider";
 
 export const searchSettings = writable({
     site: "yandere",
+    save_tags: false,
 });
 
 export const searchProvider = derived(searchSettings, ($searchSettings) => {

@@ -14,8 +14,9 @@
 
     await invoke("download", {
       url: post.file_url,
-      tags: post.tags,
+      tags: post.tags.split(" ").join(", "),
       path: `${$folder}\\${$searchSettings.site} - ${post.id}.${post.file_ext ?? file_ext}`,
+      saveTags: `${$searchSettings.save_tags}`
     });
   }
 
